@@ -1,0 +1,56 @@
+import { SortModel } from ".";
+
+export interface WineFilter {
+  id?: number;
+  varietal?: string;
+  vineyard?: string;
+  consumed?: boolean;
+}
+
+export interface Wine {
+  id: number;
+  varietal: string;
+  vineyard: string;
+  label: string;
+  vintage: number;
+  notes: string;
+  count: number;
+}
+
+export interface PatchWineRequest {
+  varietal?: string;
+  vineyard?: string;
+  label?: string;
+  vintage?: number;
+  notes?: string;
+}
+
+export interface NewBottleRequest {
+  wineId: number;
+  storageId: number;
+  binX: number;
+  binY: number;
+  depth: number;
+}
+
+export interface Bottle extends NewBottleRequest {
+  id: number;
+  storageDescription?: string;
+  createdDate: Date
+}
+
+export interface PatchBottleRequest {
+  wineId?: number;
+  storageId?: number;
+  binX?: number;
+  binY?: number;
+  depth?: number;
+  consumed?: boolean;
+}
+
+export interface GetWinesOptions {
+  page: number;
+  pageSize: number;
+  sortModel?: SortModel
+  filter?: WineFilter;
+}
