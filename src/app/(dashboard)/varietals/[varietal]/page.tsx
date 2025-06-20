@@ -66,7 +66,7 @@ const WineList = ({
         component="div"
         count={totalCount}
         page={page}
-        onPageChange={(_, newPage) => setPage(newPage + 1)}
+        onPageChange={(_, newPage) => setPage(newPage)}
         rowsPerPage={pageSize}
         onRowsPerPageChange={() => {}}
         rowsPerPageOptions={[pageSize]}
@@ -125,7 +125,7 @@ export default function Page({ params }: { params: { varietal: string } }) {
   const [totalCount, setTotalCount] = useState<number>(0);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const pageSize = 10
+  const pageSize = 7
   const { varietal } = React.use(params);
 
   const varietalName = decodeURIComponent(varietal);
@@ -149,7 +149,7 @@ export default function Page({ params }: { params: { varietal: string } }) {
   return (
     <>
       <Card 
-        className="w-lg"
+        className="w-full md:w-lg"
       >
         <CardHeader
           avatar={

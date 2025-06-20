@@ -1,59 +1,77 @@
+"use client"
 import * as React from 'react';
-import { WineService } from '../../service/wineService'
-import type { Varietal } from '../../types';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import Item from '@mui/material/ListItem';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardActionArea from '@mui/material/CardActionArea';
-import Link from '@mui/material/Link';
+import { PieChart } from '@mui/x-charts/PieChart';
+import AlertBox from '../../components/alertBox';
+import { useRouter } from 'next/navigation';
+import { useWineService } from '../../hooks/useWineService';
 
-const VarietalList = ({ varietals }: { varietals: Varietal[] }) => {
-  return (
-    <Grid 
-      container spacing={{ xs: 2, md: 3 }} 
-      columns={{ xs: 4, sm: 8, md: 12 }}
-      sx={{
-        justifyContent: 'space-around',
-        alignItems: 'stretch',
-      }}
-    >
-      {varietals.map((varietal) => (
-        <Grid key={varietal.name} size={{ xs: 2, sm: 4, md: 4 }}>
-          <Item>
-            <Card sx={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
-              <CardActionArea component={Link} href={`/wine/${varietal.name}`}>
-                <CardContent>
-                  <Typography variant="h6">{varietal.name}</Typography>
-                  <Typography color="text.secondary">Count: {varietal.count}</Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Item>
-        </Grid>
-      ))}
-    </Grid>    
-  );
+
+interface IChartSeriesData {
+  id: number;
+  value: number;
+  label: string;
 }
 
-export default async function HomePage() {
-  const wineService = new WineService();
-  let varietals: Varietal[] = [];
-  try {
-    const response = await wineService.getVarietals();
-    varietals = response.data;
-  } catch (error) {
-    return (
-      <Typography variant="h6" color="error">
-        Failed to load varietals: {error instanceof Error ? error.message : 'Unknown error'}
-      </Typography>
-    );
-  }
+export default function HomePage() {
+  const [data, setData] = React.useState<IChartSeriesData[] | undefined>(undefined);
+  const [error, setError] = React.useState<string | null>(null);
+  const [chartSize, setChartSize] = React.useState({ width: 300, height: 300 });
+  const wineService = useWineService();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      const width = Math.min(window.innerWidth * 0.8, 500); // Adjust width based on viewport
+      const height = width; // Keep the chart square
+      setChartSize({ width, height });
+    };
+
+    handleResize(); // Set initial size
+    window.addEventListener("resize", handleResize); // Update size on window resize
+
+    return () => {
+      window.removeEventListener("resize", handleResize); // Cleanup event listener
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const fetchData = async () => { 
+      try {
+        const response = await wineService.getVarietals();
+        const seriesData = response.data.map((v, idx) => ({
+          id: idx,
+          value: v.count,
+          label: v.name
+        }));
+        setData(seriesData);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Failed to load varietals');
+      }
+    }
+    fetchData();
+  }, [wineService]);
+
 
   return (
     <div>
-      <VarietalList varietals={varietals} />
+      <AlertBox type="error" message={error} onClear={() => setError(null)} />
+      <PieChart
+        series={[
+          data ? { 
+            innerRadius: 12,
+            data: data 
+          } : { data: [] }
+        ]}
+        title="Wine Varietals Distribution"
+        height={chartSize.height}
+        width={chartSize.width}
+        onItemClick={(e,d) => {
+          const label = data?.find(item => item.id === d.dataIndex)?.label ?? null;
+          if (!label) return;
+          router.push(`/varietals/${encodeURIComponent(label)}`);
+        }}
+      />
     </div>
   );
 }

@@ -7,9 +7,12 @@ import WineBottleRow from './wineBottleRow';
 import AlertBox from '../../../../../components/alertBox';
 
 
+const storageId = 5; // TODO: Support alternate storage locations in the future
+
 const WineBottles = ({ wineId }: { wineId: number }) => {
   const wineService = useWineService();
   const [bottles, setBottles] = React.useState<Bottle[]>([]);
+  const [addNewBottle, setAddNewBottle] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -26,24 +29,6 @@ const WineBottles = ({ wineId }: { wineId: number }) => {
     fetchWine();
   }, [wineId, wineService]);
 
-  // const handelFieldChange = (bottleId: number, name: string, value: string) => {
-  //   setBottles((prevBottles) =>
-  //     prevBottles.map((br) => {
-  //       if (br.bottle.id === bottleId) {
-  //         return {
-  //           ...br,
-  //           bottle: {
-  //             ...br.bottle,
-  //             [name]: value,
-  //           },
-  //           isDirty: true,
-  //         };
-  //       }
-  //       return br;
-  //     })
-  //   );
-  // }
-
   const handleOnBottleUpdate = (updatedBottle: Bottle) => {
     setBottles((prevBottles) =>
       prevBottles.map((b) => (b.id === updatedBottle.id ? updatedBottle : b))
@@ -53,6 +38,11 @@ const WineBottles = ({ wineId }: { wineId: number }) => {
   const handleOnBottleConsumed = (bottleId: number) => {
     setBottles((prevBottles) => prevBottles.filter((b) => b.id !== bottleId));
   };
+
+  const handleOnBottleInsert = (newBottle: Bottle) => {
+    setBottles((prevBottles) => [...prevBottles, newBottle]);
+    setAddNewBottle(false);
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -68,6 +58,7 @@ const WineBottles = ({ wineId }: { wineId: number }) => {
           <IconButton 
             aria-label="add" 
             color="primary"
+            onClick={() => {setAddNewBottle(true)}}
           >
             <AddIcon />
           </IconButton>
@@ -84,7 +75,17 @@ const WineBottles = ({ wineId }: { wineId: number }) => {
               onError={(errorMessage) => setError(errorMessage)}
             />
           ))}
+          {addNewBottle && (
+            <WineBottleRow
+              isNew={true}
+              wineId={wineId}
+              storageId={storageId}
+              onInsert={handleOnBottleInsert}
+              onError={(errorMessage) => setError(errorMessage)}
+            />
+          )}
         </Grid>
+        <div>{addNewBottle}</div>
       </CardContent>
     </>
   );

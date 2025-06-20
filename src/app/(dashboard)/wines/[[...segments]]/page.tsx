@@ -2,15 +2,18 @@
 
 import * as React from 'react';
 import { DataGrid, GridSortModel } from '@mui/x-data-grid';
-import { Wine, GetWinesOptions } from '../../../../types/wine';
+import { Wine, WineFilter, GetWinesOptions } from '../../../../types/wine';
 import { useWineService } from '../../../../hooks/useWineService';
-import { Alert, Container, useColorScheme } from '@mui/material';
+import { Alert, Button, Card, CardActions, CardContent, Container, FormControlLabel, Switch, useColorScheme } from '@mui/material';
 import WineDetail from './components/wineDetail';
-import { useRouter } from 'next/navigation';
+import { useRouter, notFound } from 'next/navigation';
+import AlertBox from '../../../../components/alertBox';
+import GridSkeletonLoader from '../../../../components/gridSkeletonLoader';
 
 const WineGrid = () => {
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [filter, setFilter] = React.useState<WineFilter | undefined>(undefined);
   const [wines, setWines] = React.useState<Wine[]>([]);
   const [rowCount, setRowCount] = React.useState(0);
   const [paginationModel, setPaginationModel] = React.useState({ page: 0, pageSize: 10 });
@@ -24,7 +27,8 @@ const WineGrid = () => {
       try {
         const options: GetWinesOptions = {
           page: paginationModel.page,
-          pageSize: paginationModel.pageSize
+          pageSize: paginationModel.pageSize,
+          filter: filter,
         };
 
         if (sortModel.length > 0) {
@@ -43,20 +47,41 @@ const WineGrid = () => {
       setLoading(false);
     };
     fetchWines();
-  }, [wineService, paginationModel, sortModel]);
+  }, [wineService, paginationModel, sortModel, filter]);
+
+
+  const handleFilterChange = (
+    name: keyof WineFilter,
+    value: WineFilter[keyof WineFilter]
+  ) => {
+    setFilter((prevFilter) => ({
+      ...prevFilter,
+      [name]: value,
+    }));
+  }
 
   if (!mode)
   {
     return null;
   }
 
+  if (loading) {
+    return <GridSkeletonLoader/>;
+  }
+  
   return (
     <div>
-      {error && (
-        <Alert severity="error" style={{ marginBottom: '20px' }}>
-          <strong>Error:</strong> {error}
-        </Alert>
-      )}
+      <AlertBox type="error" message={error} onClear={() => setError(null)} />
+
+      <CardContent>
+        <FormControlLabel control={
+          <Switch 
+            checked={filter?.showAll ?? false} 
+            onChange={(e) => handleFilterChange('showAll', e.target.checked)} 
+          />} 
+        label="Show All" 
+        />
+      </CardContent>
       <DataGrid 
         columns={[
           { field: 'id', headerName: 'ID', width: 80 },
@@ -84,14 +109,39 @@ const WineGrid = () => {
 export default function WinesPage({ params }: { params: { segments: string[] } }) {
   const { segments } = React.use(params);
   const [wineId, action] = segments ?? [];
+  const router = useRouter();
+
   return (
     <React.Fragment>
       <div className="flex justify-center">
-        {wineId && action ? (
+        {wineId && action === 'edit' ? (
           <WineDetail wineId={wineId} />
-        ) : (
-          <WineGrid />
-        )}
+        ): wineId === 'new' ? (
+          <WineDetail 
+            onInsert={(newWineId) => {
+              // Redirect to the new wine detail page after insertion
+              router.push(`/wines/${newWineId}/edit`);
+            }}
+          />
+        ): !wineId ? (
+          <Card>
+            <CardActions sx={ { justifyContent: 'flex-end' } }>
+              <Button 
+                size="small" 
+                variant="contained" 
+                color="primary"
+                onClick={() => { router.push('/wines/new'); }}
+              >
+                Add New Wine
+              </Button>
+            </CardActions>
+            <CardContent>
+              <WineGrid />
+            </CardContent>
+          </Card>
+        ):
+          notFound()
+        }
       </div>
     </React.Fragment>
   );

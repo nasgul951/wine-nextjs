@@ -4,16 +4,19 @@ export interface WineFilter {
   id?: number;
   varietal?: string;
   vineyard?: string;
-  consumed?: boolean;
+  showAll?: boolean;
 }
 
-export interface Wine {
-  id: number;
+export interface NewWineRequest {
   varietal: string;
   vineyard: string;
   label: string;
   vintage: number;
   notes: string;
+}
+
+export interface Wine extends NewWineRequest {
+  id: number;
   count: number;
 }
 

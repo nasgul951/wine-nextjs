@@ -1,5 +1,5 @@
 import { IGenericResponse, PagedResponse, SortModel, Varietal } from "../types";
-import { Bottle, Wine, WineFilter, PatchBottleRequest, GetWinesOptions, PatchWineRequest } from "../types/wine";
+import { Bottle, Wine, WineFilter, NewBottleRequest, PatchBottleRequest, GetWinesOptions, PatchWineRequest, NewWineRequest } from "../types/wine";
 
 export class WineService {
   private _baseApiUrl: string = process.env.apiBaseUrl + '/wine'
@@ -81,6 +81,24 @@ export class WineService {
     throw new Error(`Failed to fetch bottles for wineId:${wineId}: ${response.statusText}`);
   }
 
+  public async addWine(req: NewWineRequest): Promise<IGenericResponse<Wine>> {
+    const response = await fetch(`${this._baseApiUrl}`, {
+      headers: {
+        'Authorization': `Bearer ${this._apiToken}`,
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify(req)
+    });
+  
+    if (response.ok) {
+      const data: Wine = await response.json();
+      return { success: true, data: data, status: response.status };
+    }
+  
+    throw new Error(`Failed to add wine: ${response.statusText}`);
+  }
+
   public async patchWine(wineId: number, req: PatchWineRequest): Promise<IGenericResponse<Wine>> {
     const response = await fetch(`${this._baseApiUrl}/${wineId}`, {
       headers: {
@@ -97,6 +115,24 @@ export class WineService {
     }
 
     throw new Error(`Failed to update wine with id:${wineId}: ${response.statusText}`);
+  }
+
+  public async addBottle(req: NewBottleRequest): Promise<IGenericResponse<Bottle>> {
+    const response = await fetch(`${this._baseApiUrl}/bottles`, {
+      headers: {
+        'Authorization': `Bearer ${this._apiToken}`,
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify(req)
+    });
+
+    if (response.ok) {
+      const data: Bottle = await response.json();
+      return { success: true, data, status: response.status };
+    }
+
+    throw new Error(`Failed to add bottle for wineId:${wineId}: ${response.statusText}`);
   }
 
   public async patchBottle(bottleId: number, req: PatchBottleRequest): Promise<IGenericResponse<Bottle>> {

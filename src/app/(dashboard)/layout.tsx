@@ -26,10 +26,8 @@ export default function DashboardPagesLayout(props: { children: React.ReactNode 
   return (
     <DashboardLayout>
       <PageContainer title={title}>
-        <div id="dashboard-layout-container" className="px-4 py-6 w-full md:w-4xl">
-          <Container maxWidth="lg" >
-            {props.children}
-          </Container>
+        <div id="dashboard-layout-container" className="p-0 md:px-4 md:py-6 w-full md:w-4xl">
+          {props.children}
         </div>
       </PageContainer>
     </DashboardLayout>

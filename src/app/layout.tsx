@@ -21,6 +21,12 @@ const NAVIGATION: Navigation = [
     icon: <PersonIcon />,
     pattern: 'wines{/:wineId}*',
   },
+  {
+    segment: 'varietals',
+    title: 'All Varietals',
+    icon: <PersonIcon />,
+    pattern: 'varietals',
+  },
 ];
 
 const BRANDING = {

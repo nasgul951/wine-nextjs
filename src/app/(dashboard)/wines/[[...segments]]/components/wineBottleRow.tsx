@@ -1,63 +1,115 @@
+import React from 'react';
 import { Grid, IconButton, TextField } from '@mui/material';
-import { Bottle, NewBottleRequest } from '../../../../../types/wine';
+import { Bottle } from '../../../../../types/wine';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import { useWineService } from '../../../../../hooks/useWineService';
-import React from 'react';
-import { init } from 'next/dist/compiled/webpack/webpack';
+import { set, z } from 'zod';
 
 interface BottleRowProps {
-  binX: number;
-  binY: number;
-  depth: number;
+  wineId: number;
+  storageId: number;
+  binX: number | null;
+  binY: number | null;
+  depth: number | null;
 }
+
+type FieldErrors = {
+  binX: string;
+  binY: string;
+  depth: string;
+};
+
+const buildBottleRowProps = (bottle: Bottle | undefined): BottleRowProps => {
+  return {
+    wineId: bottle?.wineId ?? 0,
+    storageId: bottle?.storageId ?? 0,
+    binX: bottle?.binX ?? null,
+    binY: bottle?.binY ?? null,
+    depth: bottle?.depth ?? null,
+  };
+}
+
+const formSchema = z.object({
+  binX: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .refine((val) => !isNaN(val), 'must be a valid number')
+    .refine((val) => val >= 0, 'Position must be greater than 0'),
+  binY: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .refine((val) => !isNaN(val), 'Must be a valid number'),
+  depth: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .refine((val) => !isNaN(val), 'must be a valid number')
+    .refine((val) => val >= 0, 'Depth must be greater than 0'),
+});
 
 const WineBottleRow = ({
   bottle,
   isNew = false,
+  wineId,
+  storageId,
   onUpdate,
+  onInsert,
   onConsumed,
   onError
 }: {
-  bottle: Bottle | NewBottleRequest
-  isNew: boolean;
-  onUpdate: (bottle: Bottle) => void;
-  onConsumed: (bottleId: number) => void;
-  onError: (error: string) => void;
+  bottle?: Bottle
+  isNew?: boolean;
+  wineId?: number;
+  storageId?: number;
+  onUpdate?: (bottle: Bottle) => void;
+  onInsert?: (bottle: Bottle) => void;
+  onConsumed?: (bottleId: number) => void;
+  onError?: (error: string) => void;
 })=> {
   const wineService = useWineService();
-  const [data, setData] = React.useState<BottleRowProps>(bottle);
+  const [data, setData] = React.useState<BottleRowProps>(buildBottleRowProps(bottle));
+  const [fieldErrors, setFieldErrors] = React.useState<FieldErrors>({binX: '', binY: '', depth: ''});
   const isDirty = React.useMemo<boolean>(() => {
-    return bottle && JSON.stringify(data) !== JSON.stringify({
-      binX: bottle.binX,
-      binY: bottle.binY,
-      depth: bottle.depth,
-    });
+    return JSON.stringify(buildBottleRowProps(bottle)) !== JSON.stringify(data);
   }, [data, bottle]);
 
   React.useEffect(() => {
-    setData({
-      binX: bottle.binX,
-      binY: bottle.binY,
-      depth: bottle.depth,
-    });
+    if (!bottle)
+      return;
+    setData(buildBottleRowProps(bottle));
   }, [bottle]);
 
   const saveBottle = async () => {
+    if (!validateForm()) 
+      return;
+
     try {
       if (isNew) {
-        //TODO: Handle saving a new bottle
+        if (!wineId || !storageId || !data.binX || !data.binY || !data.depth) {
+          throw new Error('Wine ID and Storage ID are required for a new bottle');
+        }
+        const response = await wineService.addBottle({
+          wineId: wineId!,
+          storageId: storageId!,
+          binX: data.binX as number,
+          binY: data.binY as number,
+          depth: data.depth as number,
+        });
+        if (onInsert)
+          onInsert(response.data as Bottle);
       } else {
         const b = bottle as Bottle;
         const response = await wineService.patchBottle(b.id, {
-          binX: data.binX,
-          binY: data.binY,
-          depth: data.depth,
+          binX: data.binX as number,
+          binY: data.binY as number,
+          depth: data.depth as number,
         });
-        onUpdate(response.data as Bottle);
+        if (onUpdate)
+          onUpdate(response.data as Bottle);
       }
     } catch (error) {
-      onError(error instanceof Error ? `Error: ${error.message}` : 'Failed to save bottle');
+      if (onError)
+        onError(error instanceof Error ? `Error: ${error.message}` : 'Failed to save bottle');
     }
   };
 
@@ -68,9 +120,11 @@ const WineBottleRow = ({
       }
       const b = bottle as Bottle;
       await wineService.patchBottle(b.id, { consumed: true });
-      onConsumed(b.id)
+      if (onConsumed) 
+        onConsumed(b.id)
     } catch (error) {
-      onError(error instanceof Error ? `Error: ${error.message}` : 'Failed to consume bottle');
+      if (onError)
+        onError(error instanceof Error ? `Error: ${error.message}` : 'Failed to consume bottle');
     }
   };
 
@@ -81,7 +135,34 @@ const WineBottleRow = ({
       ...prevData,
       [name]: value,
     }));
+
+    try {
+      formSchema.shape[name as keyof FieldErrors].parse(value);
+      setFieldErrors({...fieldErrors, [name]: '' }); // Clear error for the field
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setFieldErrors({...fieldErrors, [name]: error.errors[0].message})
+      }
+    }
   };  
+
+  const validateForm = () => {
+    try {
+      formSchema.parse(data);
+      setFieldErrors({ binX: '', binY: '', depth: '' }); // Clear all errors if validation passes
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors = error.flatten().fieldErrors;
+        setFieldErrors({
+          binX: errors.binX?.[0] || '',
+          binY: errors.binY?.[0] || '',
+          depth: errors.depth?.[0] || '',
+        });
+      }
+      return false;
+    }
+  };
 
   return (
     <>
@@ -90,6 +171,8 @@ const WineBottleRow = ({
           name="binY"
           label="Row"
           value={data.binY}
+          error={!!fieldErrors.binY}
+          helperText={fieldErrors.binY}
           onChange={handelFieldChange}
           size="small"
           fullWidth
@@ -100,6 +183,8 @@ const WineBottleRow = ({
           name="binX"
           label="Position"
           value={data.binX}
+          error={!!fieldErrors.binX}
+          helperText={fieldErrors.binX}
           onChange={handelFieldChange}
           size="small"
           fullWidth
@@ -110,6 +195,8 @@ const WineBottleRow = ({
           name="depth"
           label="Depth"
           value={data.depth}
+          error={!!fieldErrors.depth}
+          helperText={fieldErrors.depth}
           onChange={handelFieldChange}
           size="small"
           fullWidth
@@ -125,13 +212,15 @@ const WineBottleRow = ({
             <SaveIcon />
           </IconButton>
         )}
-        <IconButton 
-          aria-label="delete" 
-          color="error"
-          onClick={() => consumeBottle()}
-        >
-          <DeleteIcon />
-        </IconButton>
+        {!isNew && (
+          <IconButton 
+            aria-label="delete" 
+            color="error"
+            onClick={() => consumeBottle()}
+          >
+            <DeleteIcon />
+          </IconButton>
+        )}
       </Grid>
     </>
   );
