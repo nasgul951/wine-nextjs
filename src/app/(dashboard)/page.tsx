@@ -1,11 +1,9 @@
 "use client"
 import * as React from 'react';
-import Typography from '@mui/material/Typography';
 import { PieChart } from '@mui/x-charts/PieChart';
 import AlertBox from '../../components/alertBox';
 import { useRouter } from 'next/navigation';
-import { useWineService } from '../../hooks/useWineService';
-
+import { useWineService } from '../../hooks/service';
 
 interface IChartSeriesData {
   id: number;

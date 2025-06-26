@@ -4,6 +4,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PersonIcon from '@mui/icons-material/Person';
 import type { Navigation } from '@toolpad/core/AppProvider';
+import { AuthProvider } from '../context/authContext';
 import './globals.css';
 
 const NAVIGATION: Navigation = [
@@ -39,7 +40,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       <body>
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <NextAppProvider navigation={NAVIGATION} branding={BRANDING}>
-            {props.children}
+            <AuthProvider>
+              {props.children}
+            </AuthProvider>
           </NextAppProvider>
         </AppRouterCacheProvider>
       </body>

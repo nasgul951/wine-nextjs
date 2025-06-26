@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { DataGrid, GridSortModel } from '@mui/x-data-grid';
 import { Wine, WineFilter, GetWinesOptions } from '../../../../types/wine';
-import { useWineService } from '../../../../hooks/useWineService';
-import { Alert, Button, Card, CardActions, CardContent, Container, FormControlLabel, Switch, useColorScheme } from '@mui/material';
+import { useWineService } from '../../../../hooks/service';
+import { Button, Card, CardActions, CardContent, FormControlLabel, Switch, useColorScheme } from '@mui/material';
 import WineDetail from './components/wineDetail';
 import { useRouter, notFound } from 'next/navigation';
 import AlertBox from '../../../../components/alertBox';
@@ -39,8 +39,13 @@ const WineGrid = () => {
         };
 
         const response = await wineService.getWines(options);
-        setWines(response.data.items);
-        setRowCount(response.data.totalCount);
+        if (!response.success)
+        {
+          throw new Error(`Failed to fetch wines: ${response.status}`);
+        }
+        
+        setWines(response.data!.items);
+        setRowCount(response.data!.totalCount);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Unknown error');
       }

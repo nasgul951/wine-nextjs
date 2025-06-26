@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { WineService } from '../../../service/wineService'
+import { useWineService } from '../../../hooks/service'
 import type { Varietal } from '../../../types';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -36,19 +36,27 @@ const VarietalList = ({ varietals }: { varietals: Varietal[] }) => {
   );
 }
 
-export default async function HomePage() {
-  const wineService = new WineService();
-  let varietals: Varietal[] = [];
-  try {
-    const response = await wineService.getVarietals();
-    varietals = response.data;
-  } catch (error) {
-    return (
-      <Typography variant="h6" color="error">
-        Failed to load varietals: {error instanceof Error ? error.message : 'Unknown error'}
-      </Typography>
-    );
-  }
+export default function VarietalPage() {
+  const [varietals, setVarietals] = React.useState<Varietal[]>([]);
+  const [error, setError] = React.useState<string | undefined>(undefined);
+  const wineService = useWineService();
+
+  React.useEffect(() => {
+    const fetchVarietals = async () => {
+      try {
+        const response = await wineService.getVarietals();
+        if (!response.success) {
+          throw new Error(`Failed to fetch varietals: ${response.status}`);
+        }
+        setVarietals(response.data!);
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        setError(`Faild to fetch variatles: ${msg}`);
+      }
+    };
+
+    fetchVarietals();
+  }, [wineService]);
 
   return (
     <div>

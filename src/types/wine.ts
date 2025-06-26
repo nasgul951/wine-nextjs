@@ -1,4 +1,4 @@
-import { SortModel } from ".";
+import { ISortModel } from ".";
 
 export interface WineFilter {
   id?: number;
@@ -54,6 +54,6 @@ export interface PatchBottleRequest {
 export interface GetWinesOptions {
   page: number;
   pageSize: number;
-  sortModel?: SortModel
+  sortModel?: ISortModel
   filter?: WineFilter;
 }
