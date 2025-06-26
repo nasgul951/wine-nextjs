@@ -15,12 +15,10 @@ const AuthContext = React.createContext<IAuthContext>({
 function authReducer(state: IAppState, action: IDispatchAction) {
   switch (action.type) {
   case "SET_TOKEN":
-    localStorage.setItem('session-key', action.payload as string);
     return { ...state, token: action.payload as string };
   case "SET_USER":
     return { ...state, user: action.payload as ISessionInfo };
   case "LOGOUT":
-    localStorage.removeItem('session-key');
     return { ...state, token: null, user: null };
   default:
     return state;
@@ -32,17 +30,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = React.useReducer<IAppState, [IDispatchAction]>(authReducer, initialState);
   const authService = useAuthService();
 
-  if (!state.token) {
-    // Check localStorage for existing session token
+  // try to load the token from localStorage
+  React.useEffect(() => {
     const token = localStorage.getItem('session-key');
     if (token) {
       dispatch({ type: "SET_TOKEN", payload: token });
     }
-  }
+  }, []);
 
   const login = async (req: CredentialsAuthRequest): Promise<boolean> => {
     const response = await authService.loginWithCredentials(req);
     if (response.success) {
+      // presist the token in localStorage
+      localStorage.setItem('session-key', response.data!.token);
       dispatch({ type: "SET_TOKEN", payload: response.data!.token });
       return true;
     }
@@ -63,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [authService]);
 
   const logout = () => {
+    localStorage.removeItem('session-key');
     dispatch({ type: "LOGOUT" });
   }
 

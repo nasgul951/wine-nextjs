@@ -3,6 +3,8 @@ import { NextAppProvider } from '@toolpad/core/nextjs';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PersonIcon from '@mui/icons-material/Person';
+import WineIcon from '@mui/icons-material/WineBar';
+import VarietalIcon from '@mui/icons-material/Diversity2';
 import type { Navigation } from '@toolpad/core/AppProvider';
 import { AuthProvider } from '../context/authContext';
 import './globals.css';
@@ -19,14 +21,14 @@ const NAVIGATION: Navigation = [
   {
     segment: 'wines',
     title: 'All Wine',
-    icon: <PersonIcon />,
+    icon: <WineIcon />,
     pattern: 'wines{/:wineId}*',
   },
   {
     segment: 'varietals',
     title: 'All Varietals',
-    icon: <PersonIcon />,
-    pattern: 'varietals',
+    icon: <VarietalIcon />,
+    pattern: 'varietals{/:varietal}',
   },
 ];
 

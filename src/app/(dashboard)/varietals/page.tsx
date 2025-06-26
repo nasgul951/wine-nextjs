@@ -1,4 +1,6 @@
+'use client';
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { useWineService } from '../../../hooks/service'
 import type { Varietal } from '../../../types';
 import Typography from '@mui/material/Typography';
@@ -8,8 +10,13 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActionArea from '@mui/material/CardActionArea';
 import Link from '@mui/material/Link';
+import AlertBox from '../../../components/alertBox';
 
 const VarietalList = ({ varietals }: { varietals: Varietal[] }) => {
+  const router = useRouter();
+  const gotoVarietal = (varietalName: string) => {
+    router.push(`/varietals/${varietalName}`);
+  };
   return (
     <Grid 
       container spacing={{ xs: 2, md: 3 }} 
@@ -22,7 +29,7 @@ const VarietalList = ({ varietals }: { varietals: Varietal[] }) => {
         <Grid key={varietal.name} size={{ xs: 12, md: 6 }}>
           <Item>
             <Card sx={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
-              <CardActionArea component={Link} href={`/varietals/${varietal.name}`}>
+              <CardActionArea component={Link} onClick={() => gotoVarietal(varietal.name)}>
                 <CardContent>
                   <Typography variant="h6">{varietal.name}</Typography>
                   <Typography color="text.secondary">Count: {varietal.count}</Typography>
@@ -38,7 +45,7 @@ const VarietalList = ({ varietals }: { varietals: Varietal[] }) => {
 
 export default function VarietalPage() {
   const [varietals, setVarietals] = React.useState<Varietal[]>([]);
-  const [error, setError] = React.useState<string | undefined>(undefined);
+  const [error, setError] = React.useState<string | null>(null);
   const wineService = useWineService();
 
   React.useEffect(() => {
@@ -60,6 +67,7 @@ export default function VarietalPage() {
 
   return (
     <div>
+      <AlertBox type="error" message={error} onClear={() => setError(null)} />
       <VarietalList varietals={varietals} />
     </div>
   );

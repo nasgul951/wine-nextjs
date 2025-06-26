@@ -43,8 +43,10 @@ export default function DashboardPagesLayout(props: { children: React.ReactNode 
   // If the user is not authenticated, redirect to the login page
   React.useEffect(() => {
     if (!user) {
+      console.log('The user is not defined, Oh No!');
       router.push('/login');
     }
+    console.log('I have a user, All good');
   }, [user, router]);
 
   if (!user) {
