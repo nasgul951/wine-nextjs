@@ -89,7 +89,10 @@ const WineDetail = ({
     const fetchWine = async () => {
       try {
         const response = await wineService.getWineById(Number(wineId));
-        const data = toWineDetailProps(response.data)
+        if (!response.success) {
+          throw new Error(`Failed to fetch wine: ${response.status}`);
+        }
+        const data = toWineDetailProps(response.data!)
         setData(data);
         initialValueRef.current = JSON.stringify(data);
       } catch (error) {
@@ -120,12 +123,15 @@ const WineDetail = ({
           vintage: data.vintage!,
           notes: data.notes,
         });
-        if (onInsert) {
-          onInsert(response.data.id);
+        if (response.success && onInsert) {
+          onInsert(response.data!.id);
         }
       }
+      if (!response.success) {
+        throw new Error(`Failed to save wine: ${response.status}`);
+      }
 
-      const newData = toWineDetailProps(response.data);
+      const newData = toWineDetailProps(response.data!);
       setData(newData);
       initialValueRef.current = JSON.stringify(newData);
     } catch (error) {
@@ -160,7 +166,7 @@ const WineDetail = ({
   const validateForm = () => {
     try {
       formSchema.parse(data);
-      setFieldErrors({ binX: '', binY: '', depth: '' }); // Clear all errors if validation passes
+      setFieldErrors({ vineyard: '', label: '', varietal: '', vintage: '', notes: '' }); // Clear all errors if validation passes
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {

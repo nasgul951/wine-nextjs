@@ -37,7 +37,10 @@ export default function HomePage() {
     const fetchData = async () => { 
       try {
         const response = await wineService.getVarietals();
-        const seriesData = response.data.map((v, idx) => ({
+        if (!response.success) {
+          throw new Error(`Failed to fetch varietals: ${response.status}`);
+        }
+        const seriesData = response.data!.map((v, idx) => ({
           id: idx,
           value: v.count,
           label: v.name

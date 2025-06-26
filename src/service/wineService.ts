@@ -22,7 +22,7 @@ export class WineService {
       return { success: true, data: await data, status: response.status };
     } 
 
-    throw new Error(`Failed to fetch varietals: ${response.statusText}`);
+    return { success: false, status: response.status, errors: [response.statusText] };
   }
 
   public async getWineById(wineId: number): Promise<IGenericResponse<Wine>> {
@@ -38,7 +38,7 @@ export class WineService {
       return { success: true, data: data, status: response.status };
     }
 
-    throw new Error(`Failed to fetch wine with id:${wineId}: ${response.statusText}`);
+    return { success: false, status: response.status, errors: [response.statusText] };
   }
   
   public async getWines(opt: GetWinesOptions): Promise<IGenericResponse<IPagedResponse<Wine>>> {
@@ -65,7 +65,7 @@ export class WineService {
       return { success: true, data: data, status: response.status };
     }
 
-    throw new Error(`Failed to fetch wine: ${response.statusText}`);
+    return { success: false, status: response.status, errors: [response.statusText] };
   }
 
   public async getBottlesByWineId(wineId: number): Promise<IGenericResponse<Bottle[]>> {
@@ -81,7 +81,7 @@ export class WineService {
       return { success: true, data: data, status: response.status };
     }
 
-    throw new Error(`Failed to fetch bottles for wineId:${wineId}: ${response.statusText}`);
+    return { success: false, status: response.status, errors: [response.statusText] };
   }
 
   public async addWine(req: NewWineRequest): Promise<IGenericResponse<Wine>> {
@@ -99,7 +99,7 @@ export class WineService {
       return { success: true, data: data, status: response.status };
     }
   
-    throw new Error(`Failed to add wine: ${response.statusText}`);
+    return { success: false, status: response.status, errors: [response.statusText] };
   }
 
   public async patchWine(wineId: number, req: PatchWineRequest): Promise<IGenericResponse<Wine>> {
@@ -117,7 +117,7 @@ export class WineService {
       return { success: true, data, status: response.status };
     }
 
-    throw new Error(`Failed to update wine with id:${wineId}: ${response.statusText}`);
+    return { success: false, status: response.status, errors: [response.statusText] };
   }
 
   public async addBottle(req: NewBottleRequest): Promise<IGenericResponse<Bottle>> {
@@ -135,7 +135,7 @@ export class WineService {
       return { success: true, data, status: response.status };
     }
 
-    throw new Error(`Failed to add bottle for wineId:${wineId}: ${response.statusText}`);
+    return { success: false, status: response.status, errors: [response.statusText] };
   }
 
   public async patchBottle(bottleId: number, req: PatchBottleRequest): Promise<IGenericResponse<Bottle>> {
@@ -154,6 +154,6 @@ export class WineService {
       return { success: true, data, status: response.status };
     }
 
-    throw new Error(`Failed to patch bottle with id:${bottleId}: ${response.statusText}`);
+    return { success: false, status: response.status, errors: [response.statusText] };
   }
 }

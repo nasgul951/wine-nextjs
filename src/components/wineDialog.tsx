@@ -26,7 +26,10 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
     if (wine && wine.id) {
       try {
         const response = await wineService.getBottlesByWineId(wine.id);
-        setBottles(response.data);
+        if (!response.success) {
+          throw new Error(`Failed to fetch bottles: ${response.status}`);
+        }
+        setBottles(response.data!);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Unknown error');
       }

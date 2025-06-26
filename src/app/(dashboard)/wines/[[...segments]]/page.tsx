@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from 'react';
+import { useParams } from 'next/navigation';
 import { DataGrid, GridSortModel } from '@mui/x-data-grid';
 import { Wine, WineFilter, GetWinesOptions } from '../../../../types/wine';
 import { useWineService } from '../../../../hooks/service';
@@ -111,16 +112,16 @@ const WineGrid = () => {
   );
 }
 
-export default function WinesPage({ params }: { params: { segments: string[] } }) {
-  const { segments } = React.use(params);
-  const [wineId, action] = segments ?? [];
+export default function WinesPage() {
+  const params = useParams();
+  const [wineId, action] = params.segments ?? [];
   const router = useRouter();
 
   return (
     <React.Fragment>
       <div className="flex justify-center">
         {wineId && action === 'edit' ? (
-          <WineDetail wineId={wineId} />
+          <WineDetail wineId={Number(wineId)} />
         ): wineId === 'new' ? (
           <WineDetail 
             onInsert={(newWineId) => {

@@ -1,8 +1,7 @@
-import * as React from 'react';
+import React, { Suspense } from 'react';
 import { NextAppProvider } from '@toolpad/core/nextjs';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import PersonIcon from '@mui/icons-material/Person';
 import WineIcon from '@mui/icons-material/WineBar';
 import VarietalIcon from '@mui/icons-material/Diversity2';
 import type { Navigation } from '@toolpad/core/AppProvider';
@@ -40,13 +39,16 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-toolpad-color-scheme="light">
       <body>
-        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-          <NextAppProvider navigation={NAVIGATION} branding={BRANDING}>
-            <AuthProvider>
-              {props.children}
-            </AuthProvider>
-          </NextAppProvider>
-        </AppRouterCacheProvider>
+        <Suspense fallback={<div>Loading...</div>}>
+          <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+            <NextAppProvider navigation={NAVIGATION} branding={BRANDING}>
+              <AuthProvider>
+                {/* This is where the main content of the app will be rendered */}
+                {props.children}
+              </AuthProvider>
+            </NextAppProvider>
+          </AppRouterCacheProvider>
+        </Suspense>
       </body>
     </html>
   );

@@ -1,5 +1,5 @@
 'use client'
-import * as React from 'react';
+import React, { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { SignInPage, AuthResponse, type AuthProvider } from '@toolpad/core/SignInPage';
 import { useAuth } from '../../context/authContext';
@@ -39,10 +39,12 @@ export default function CredentialsSignInPage() {
   };
 
   return (
-    <SignInPage
-      signIn={signIn}
-      providers={providers}
-      slotProps={{ emailField: { autoFocus: false }, form: { noValidate: true } }}
-    />
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInPage
+        signIn={signIn}
+        providers={providers}
+        slotProps={{ emailField: { autoFocus: false }, form: { noValidate: true } }}
+      />
+    </Suspense>
   );
 }

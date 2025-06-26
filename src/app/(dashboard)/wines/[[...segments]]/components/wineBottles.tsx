@@ -20,7 +20,10 @@ const WineBottles = ({ wineId }: { wineId: number }) => {
     const fetchWine = async () => {
       try {
         const bottlesResponse = await wineService.getBottlesByWineId(Number(wineId));
-        setBottles(bottlesResponse.data);
+        if (!bottlesResponse.success) {
+          throw new Error(`Failed to fetch bottles: ${bottlesResponse.status}`);
+        }
+        setBottles(bottlesResponse.data!);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Unknown error');
       }
