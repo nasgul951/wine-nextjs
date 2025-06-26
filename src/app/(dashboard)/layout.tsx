@@ -41,11 +41,17 @@ export default function DashboardPagesLayout(props: { children: React.ReactNode 
   }, [activePage.breadcrumbs, title, path]);
 
   // If the user is not authenticated, redirect to the login page
+  React.useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
+
   if (!user) {
-    router.push('/login');
+    // If the user is not authenticated, we don't render the layout
     return null;
   }
-
+  
   return (
     <DashboardLayout>
       <PageContainer title={title} breadcrumbs={breadcrumbs}>

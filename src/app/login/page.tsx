@@ -11,8 +11,7 @@ export default function CredentialsSignInPage() {
   const { user, login } = useAuth();
 
   React.useEffect(() => {
-    console.log('CredentialsSignInPage useEffect', user);
-    if (!user) { console.log('No User, do nothing'); return; }
+    if (!user) return;
     // Redirect to the dashboard if the user is already logged in
     router.push('/');
   }, [user, router]);

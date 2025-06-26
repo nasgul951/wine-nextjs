@@ -20,6 +20,7 @@ function authReducer(state: IAppState, action: IDispatchAction) {
   case "SET_USER":
     return { ...state, user: action.payload as ISessionInfo };
   case "LOGOUT":
+    localStorage.removeItem('session-key');
     return { ...state, token: null, user: null };
   default:
     return state;
@@ -39,23 +40,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  React.useEffect(() => {
-    if (!state.token) return;
-    authService.setApiToken(state.token);
-
-    const loadUserInfo = async () => {
-      const response = await authService.getUserInfo();
-      if (!response.success) return;
-      const user: ISessionInfo = {
-        userId: response.data!.userId,
-        userName: response.data!.userName
-      };
-      dispatch({ type: "SET_USER", payload: user });
-    }
-
-    loadUserInfo();
-  }, [state.token, authService]);
-
   const login = async (req: CredentialsAuthRequest): Promise<boolean> => {
     const response = await authService.loginWithCredentials(req);
     if (response.success) {
@@ -65,8 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return false;
   }
 
-  const getUserInfo = async (): Promise<ISessionInfo | null> => {
-    const response = await authService.getUserInfo(state.token!);
+  const getUserInfo = React.useCallback(async (): Promise<ISessionInfo | null> => {
+    const response = await authService.getUserInfo();
     if (response.success) {
       const user: ISessionInfo = {
         userId: response.data!.userId,
@@ -76,11 +60,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return user;
     }
     return null;
-  };
+  }, [authService]);
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
   }
+
+  // Set the API token when the token state changes
+  React.useEffect(() => {
+    if (!state.token) return;
+    authService.setApiToken(state.token);
+    getUserInfo();
+  }, [state.token, authService, getUserInfo]);
 
   return (
     <AuthContext.Provider value={{ user: state.user, token: state.token, login, getUserInfo, logout }}>
@@ -89,6 +80,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Custom hook to access authentication context.
+ * Returns the current authentication state and actions.
+ */
 export function useAuth() {
   return React.useContext(AuthContext);
 }
