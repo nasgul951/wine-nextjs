@@ -1,7 +1,7 @@
 import React from 'react';
 import { CardContent, Typography, Grid, IconButton } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
-import { useWineService } from '../../../../../hooks/useWineService';
+import { useWineService } from '../../../../../hooks/service';
 import { Bottle } from '../../../../../types/wine';
 import WineBottleRow from './wineBottleRow';
 import AlertBox from '../../../../../components/alertBox';

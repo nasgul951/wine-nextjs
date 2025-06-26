@@ -3,8 +3,8 @@ import { Grid, IconButton, TextField } from '@mui/material';
 import { Bottle } from '../../../../../types/wine';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
-import { useWineService } from '../../../../../hooks/useWineService';
-import { set, z } from 'zod';
+import { useWineService } from '../../../../../hooks/service';
+import { z } from 'zod';
 
 interface BottleRowProps {
   wineId: number;

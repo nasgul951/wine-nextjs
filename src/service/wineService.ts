@@ -1,10 +1,13 @@
-import { IGenericResponse, PagedResponse, SortModel, Varietal } from "../types";
-import { Bottle, Wine, WineFilter, NewBottleRequest, PatchBottleRequest, GetWinesOptions, PatchWineRequest, NewWineRequest } from "../types/wine";
+import { IGenericResponse, IPagedResponse, Varietal } from "../types";
+import { Bottle, Wine, NewBottleRequest, PatchBottleRequest, GetWinesOptions, PatchWineRequest, NewWineRequest } from "../types/wine";
 
 export class WineService {
   private _baseApiUrl: string = process.env.apiBaseUrl + '/wine'
-  private _apiToken: string = process.env.apiKey!
+  private _apiToken: string
 
+  constructor(apiToken: string) {
+    this._apiToken = apiToken;
+  }
 
   public async getVarietals(): Promise<IGenericResponse<Varietal[]>> {
     const response = await fetch(`${this._baseApiUrl}/varietals`, {
@@ -38,7 +41,7 @@ export class WineService {
     throw new Error(`Failed to fetch wine with id:${wineId}: ${response.statusText}`);
   }
   
-  public async getWines(opt: GetWinesOptions): Promise<IGenericResponse<PagedResponse<Wine>>> {
+  public async getWines(opt: GetWinesOptions): Promise<IGenericResponse<IPagedResponse<Wine>>> {
     const queryParams = new URLSearchParams();
     queryParams.append('page', opt.page.toString());
     queryParams.append('pageSize', opt.pageSize.toString());
@@ -58,7 +61,7 @@ export class WineService {
     });
 
     if (response.ok) {
-      const data: PagedResponse<Wine> = await response.json();
+      const data: IPagedResponse<Wine> = await response.json();
       return { success: true, data: data, status: response.status };
     }
 

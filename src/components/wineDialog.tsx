@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Wine, Bottle } from '../types/wine';
-import { useWineService } from '../hooks/useWineService';
+import { useWineService } from '../hooks/service';
 import {
   Alert,
   Avatar,

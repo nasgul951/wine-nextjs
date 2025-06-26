@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import type { Wine, WineFilter } from '../../../../types/wine';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -7,7 +8,7 @@ import ListItemText from '@mui/material/ListItemText';
 import TablePagination from '@mui/material/TablePagination';
 import Skeleton from '@mui/material/Skeleton';
 import { Alert, Avatar, Card, CardContent, CardHeader, Divider, ListItemButton, Typography } from '@mui/material';
-import { useWineService } from '../../../../hooks/useWineService';
+import { useWineService } from '../../../../hooks/service';
 import WineDialog from '../../../../components/wineDialog';
 
 const WineListSkeleton = ({ count = 10 }) => (
@@ -117,8 +118,9 @@ function stringAvatar(name: string) {
   };
 }
 
-export default function Page({ params }: { params: { varietal: string } }) {
+export default function Page() {
   const wineService = useWineService();
+  const params = useParams();
   const [wines, setWines] = useState<Wine[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(0);
@@ -126,17 +128,20 @@ export default function Page({ params }: { params: { varietal: string } }) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const pageSize = 7
-  const { varietal } = React.use(params);
+  const { varietal } = params;
 
-  const varietalName = decodeURIComponent(varietal);
+  const varietalName = decodeURIComponent(varietal as string);
 
   useEffect(() => {
     const fetchWines = async () => {
       const filter: WineFilter = { varietal: varietalName };
       try {
         const response = await wineService.getWines({ page, pageSize, filter});
-        setWines(response.data.items);
-        setTotalCount(response.data.totalCount);
+        if (!response.success) {
+          throw new Error(`Failed to fetch wines: ${response.status}`);
+        }
+        setWines(response.data!.items);
+        setTotalCount(response.data!.totalCount);
       } catch (error) {   
         setError(error instanceof Error ? error.message : 'Unknown error');
       } finally {
