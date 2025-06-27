@@ -29,6 +29,12 @@ const NAVIGATION: Navigation = [
     icon: <VarietalIcon />,
     pattern: 'varietals{/:varietal}',
   },
+  {
+    segment: 'store',
+    title: 'Storage',
+    icon: <VarietalIcon />,
+    pattern: 'store{/:id}',
+  },
 ];
 
 const BRANDING = {
@@ -37,7 +43,7 @@ const BRANDING = {
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-toolpad-color-scheme="light">
+    <html lang="en">
       <body>
         <Suspense fallback={<div>Loading...</div>}>
           <AppRouterCacheProvider options={{ enableCssLayer: true }}>

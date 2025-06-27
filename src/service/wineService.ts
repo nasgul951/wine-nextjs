@@ -1,5 +1,5 @@
 import { IGenericResponse, IPagedResponse, Varietal } from "../types";
-import { Bottle, Wine, NewBottleRequest, PatchBottleRequest, GetWinesOptions, PatchWineRequest, NewWineRequest } from "../types/wine";
+import { Bottle, Wine, NewBottleRequest, PatchBottleRequest, GetWinesOptions, PatchWineRequest, NewWineRequest, IStoreLocation } from "../types/wine";
 
 export class WineService {
   private _baseApiUrl: string = process.env.apiBaseUrl + '/wine'
@@ -20,7 +20,7 @@ export class WineService {
     if (response.ok) {
       const data: Varietal[] = await response.json();
       return { success: true, data: await data, status: response.status };
-    } 
+    }
 
     return { success: false, status: response.status, errors: [response.statusText] };
   }
@@ -40,7 +40,7 @@ export class WineService {
 
     return { success: false, status: response.status, errors: [response.statusText] };
   }
-  
+
   public async getWines(opt: GetWinesOptions): Promise<IGenericResponse<IPagedResponse<Wine>>> {
     const queryParams = new URLSearchParams();
     queryParams.append('page', opt.page.toString());
@@ -52,7 +52,7 @@ export class WineService {
     if (opt.filter) {
       queryParams.append('filter', JSON.stringify(opt.filter));
     }
- 
+
     const response = await fetch(`${this._baseApiUrl}/query?${queryParams.toString()}`, {
       headers: {
         'Authorization': `Bearer ${this._apiToken}`
@@ -93,12 +93,12 @@ export class WineService {
       method: 'POST',
       body: JSON.stringify(req)
     });
-  
+
     if (response.ok) {
       const data: Wine = await response.json();
       return { success: true, data: data, status: response.status };
     }
-  
+
     return { success: false, status: response.status, errors: [response.statusText] };
   }
 
@@ -152,6 +152,22 @@ export class WineService {
     if (response.ok) {
       const data: Bottle = await response.json();
       return { success: true, data, status: response.status };
+    }
+
+    return { success: false, status: response.status, errors: [response.statusText] };
+  }
+
+  public async getStoreInventory(storeId: number): Promise<IGenericResponse<IStoreLocation[]>> {
+    const response = await fetch(`${this._baseApiUrl}/store/${storeId}`, {
+      headers: {
+        'Authorization': `Bearer ${this._apiToken}`
+      },
+      method: 'GET',
+    });
+
+    if (response.ok) {
+      const data: IStoreLocation[] = await response.json();
+      return { success: true, data: data, status: response.status };
     }
 
     return { success: false, status: response.status, errors: [response.statusText] };

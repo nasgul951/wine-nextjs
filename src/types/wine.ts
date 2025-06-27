@@ -57,3 +57,10 @@ export interface GetWinesOptions {
   sortModel?: ISortModel
   filter?: WineFilter;
 }
+
+export interface IStoreLocation {
+  id: number;
+  binX: number;
+  binY: number;
+  count: number;
+}
