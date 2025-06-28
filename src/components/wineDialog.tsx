@@ -14,6 +14,8 @@ import {
   ListItem,
   ListItemText,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Typography from '@mui/material/Typography';
 
@@ -21,6 +23,8 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
   const [bottles, setBottles] = useState<Bottle[]>([]);
   const [error, setError] = useState<string | null>(null);
   const wineService = useWineService();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const fetchBottles = useCallback(async () => {
     if (wine && wine.id) {
@@ -55,6 +59,7 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      fullScreen={isMobile}
     >
       <Card>
         <CardHeader

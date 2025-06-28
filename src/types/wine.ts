@@ -57,3 +57,23 @@ export interface GetWinesOptions {
   sortModel?: ISortModel
   filter?: WineFilter;
 }
+
+export interface IStoreLocation {
+  id: number;
+  binX: number;
+  binY: number;
+  count: number;
+}
+
+export interface IStoreBottle {
+  bottleId: number;
+  wineId: number;
+  vineyard: string;
+  label: string;
+  varietal: string;
+  vintage: number;
+  binX: number;
+  binY: number;
+  depth: number;
+  createdDate: Date;
+}
