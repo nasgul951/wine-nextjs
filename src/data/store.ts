@@ -1,11 +1,14 @@
-import { IStoreLocation } from "../types/wine";
-
 export type WineStoreConfig = {
   id: string;
   name: string;
   rows: number;
   binsPerRow: number;
 };
+
+export interface IBin {
+  x: number;
+  y: number;
+}
 
 export class WineStore {
   private _id: number;
@@ -22,7 +25,6 @@ export class WineStore {
     return {
       x: Math.floor((binId % (1000 * this._id)) / 100),
       y: (binId % (1000 * this._id)) % 100,
-      binList: []
     }
   }
 }

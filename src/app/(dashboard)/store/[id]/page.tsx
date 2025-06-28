@@ -3,7 +3,8 @@ import React from "react";
 import { IStoreLocation } from "../../../../types/wine"
 import { WineStore } from '../../../../data/store';
 import { useParams } from "next/navigation";
-import { LinearProgress, CircularProgress, Card } from '@mui/material'
+import { CircularProgress, Card, Paper } from '@mui/material'
+import BinList from "../../../../components/binList";
 import { useWineService } from "../../../../hooks/service";
 const wineStore = new WineStore(5);
 
@@ -69,14 +70,20 @@ const parseContents = (data: IStoreLocation[]): Array<IBinContent> => {
   return store;
 }
 
+type StorageBinProps = {
+  storeId: number,
+  onBinSelected: (binId: number) => void
+  refresh?: number
+  onError?: (error: Error) => void
+}
+
 const StorageBin = (
   {
     storeId,
+    onBinSelected,
+    refresh,
     onError
-  }: {
-    storeId: number,
-    onError?: (error: Error) => void
-  }
+  }: StorageBinProps
 ) => {
   const [loading, setLoading] = React.useState(true);
   const [bins, setBins] = React.useState<Array<IBinContent>>([]);
@@ -102,7 +109,7 @@ const StorageBin = (
     };
 
     fetchData();
-  }, [storeId, wineService, onError]);
+  }, [storeId, wineService, refresh, onError]);
 
   if (loading) {
     return (
@@ -115,25 +122,24 @@ const StorageBin = (
   return (
     bins.map((bin) => {
       const classes = [
-        "bin",
-        "h1",
-        "text-white",
-        "d-flex",
+        "flex",
         "items-center",
         "justify-center",
         "box-content",
-        bin.isDouble ? "row-span-2 h2 pb-1" : "",
+        bin.isDouble ? "h-16 pb-1" : "h-8",
         bin.isRow ? "col-span-6" : "",
-        bin.count !== 0 ? "pink lighten-5" : "",
-        bin.count === 0 ? "pink lighten-4" : "",
       ]
         .filter(Boolean)
         .join(" ");
 
       return (
-        <div className={classes} key={bin.id}>
+        <Paper
+          elevation={bin.count !== 0 ? 2 : 1}
+          className={classes} key={bin.id}
+          onClick={() => onBinSelected(bin.id)}
+        >
           {bin.count !== 0 && <div>{bin.count}</div>}
-        </div>
+        </Paper>
       );
     })
   )
@@ -141,16 +147,28 @@ const StorageBin = (
 
 
 export default function Page() {
+  const [selectedBin, setSelectedBin] = React.useState<number | null>(null);
+  const [refreshKey, setRefreshKey] = React.useState<number>(0);
   const params = useParams();
   const { id: storeId } = params;
 
   return (
     <>
-      <Card className="w-xs">
+      <Card className="w-full md:w-xs">
         <div className="pa-5 grid grid-cols-6 gap-1 border-4 text-center">
-          <StorageBin storeId={Number(storeId)} />
+          <StorageBin 
+            storeId={Number(storeId)} 
+            onBinSelected={(binId) => setSelectedBin(binId)}
+            refresh={refreshKey}
+          />
         </div>
       </Card>
+      <BinList
+        binId={selectedBin}
+        open={selectedBin !== null}
+        onClose={() => setSelectedBin(null)}
+        onBottleDeleted={() => setRefreshKey(refreshKey+1) }
+      />
     </>
   );
 }

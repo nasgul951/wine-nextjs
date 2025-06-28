@@ -64,3 +64,16 @@ export interface IStoreLocation {
   binY: number;
   count: number;
 }
+
+export interface IStoreBottle {
+  bottleId: number;
+  wineId: number;
+  vineyard: string;
+  label: string;
+  varietal: string;
+  vintage: number;
+  binX: number;
+  binY: number;
+  depth: number;
+  createdDate: Date;
+}

@@ -1,5 +1,5 @@
 import { IGenericResponse, IPagedResponse, Varietal } from "../types";
-import { Bottle, Wine, NewBottleRequest, PatchBottleRequest, GetWinesOptions, PatchWineRequest, NewWineRequest, IStoreLocation } from "../types/wine";
+import { Bottle, Wine, NewBottleRequest, PatchBottleRequest, GetWinesOptions, PatchWineRequest, NewWineRequest, IStoreLocation, IStoreBottle } from "../types/wine";
 
 export class WineService {
   private _baseApiUrl: string = process.env.apiBaseUrl + '/wine'
@@ -170,6 +170,22 @@ export class WineService {
       return { success: true, data: data, status: response.status };
     }
 
+    return { success: false, status: response.status, errors: [response.statusText] };
+  }
+
+  public async getBottlesByBinId(binId: number): Promise<IGenericResponse<IStoreBottle[]>> {
+    const response = await fetch(`${this._baseApiUrl}/store/bin/${binId}`, {
+      headers: {
+        'Authorization': `Bearer ${this._apiToken}`
+      },
+      method: 'GET',
+    });
+
+    if (response.ok) {
+      const data: IStoreBottle[] = await response.json();
+      return { success: true, data: data, status: response.status };
+    } 
+    
     return { success: false, status: response.status, errors: [response.statusText] };
   }
 }
