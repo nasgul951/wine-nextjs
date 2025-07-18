@@ -14,6 +14,8 @@ import {
   ListItem,
   ListItemText,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Typography from '@mui/material/Typography';
 
@@ -21,7 +23,9 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
   const [bottles, setBottles] = useState<Bottle[]>([]);
   const [error, setError] = useState<string | null>(null);
   const wineService = useWineService();
-  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const fetchBottles = useCallback(async () => {
     if (wine && wine.id) {
       try {
@@ -61,6 +65,8 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      className="height-full"
+      fullScreen={isMobile}
     >
       <Card>
         <CardHeader
@@ -99,8 +105,15 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
                 }
               >
                 <ListItemText
-                  primary={bottle.storageDescription || 'No storage description'}
-                  secondary={`Row: ${bottle.binX} - Column: ${bottle.binY} - Depth: ${bottle.depth}`}
+                  primary={(
+                    <div className="flex justify-between">
+                      <div>{bottle.storageDescription || 'No storage description'}</div>
+                      <div className="text-xs">
+                        Added: {`${bottle.createdDate.getDate() + 1}/${bottle.createdDate.getFullYear()} `}
+                      </div>
+                    </div>
+                  )}
+                  secondary={`Row: ${bottle.binY} - Column: ${bottle.binX} - Depth: ${bottle.depth}`}
                 />
               </ListItem>
             ))}

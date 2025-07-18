@@ -43,10 +43,8 @@ export default function DashboardPagesLayout(props: { children: React.ReactNode 
   // If the user is not authenticated, redirect to the login page
   React.useEffect(() => {
     if (!user) {
-      console.log('The user is not defined, Oh No!');
       router.push('/login');
     }
-    console.log('I have a user, All good');
   }, [user, router]);
 
   if (!user) {
@@ -57,7 +55,7 @@ export default function DashboardPagesLayout(props: { children: React.ReactNode 
   return (
     <DashboardLayout>
       <PageContainer title={title} breadcrumbs={breadcrumbs}>
-        <div id="dashboard-layout-container" className="p-0 md:px-4 md:py-6 w-full md:w-4xl">
+        <div id="dashboard-layout-container" className="flex justify-center p-0 md:px-4 md:py-6 w-full md:w-4xl">
           {props.children}
         </div>
       </PageContainer>
