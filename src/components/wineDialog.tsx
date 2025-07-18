@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import type { Wine, Bottle } from '../types/wine';
 import { useWineService } from '../hooks/service';
 import {
@@ -21,7 +21,7 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
   const [bottles, setBottles] = useState<Bottle[]>([]);
   const [error, setError] = useState<string | null>(null);
   const wineService = useWineService();
-
+  
   const fetchBottles = useCallback(async () => {
     if (wine && wine.id) {
       try {
@@ -44,6 +44,12 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
       setError(error instanceof Error ? error.message : 'Failed to delete bottle');
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      setError(null);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     fetchBottles();

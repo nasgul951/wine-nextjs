@@ -23,8 +23,6 @@ jobs:
 
       # Step 3: Install dependencies
       - name: Install dependencies
-        env:
-          NODE_ENV: production
         run: npm install
 
       # Step 4: Build the Next.js app
