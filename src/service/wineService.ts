@@ -77,8 +77,14 @@ export class WineService {
     });
 
     if (response.ok) {
-      const data: Bottle[] = await response.json();
-      return { success: true, data: data, status: response.status };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data: any[] = await response.json();
+      const bottles: Bottle[] = data.map(bottle => ({
+        ...bottle,
+        createdDate: new Date(bottle.createdDate),
+        modifiedDate: new Date(bottle.modifiedDate)
+      }));
+      return { success: true, data: bottles, status: response.status };
     }
 
     return { success: false, status: response.status, errors: [response.statusText] };

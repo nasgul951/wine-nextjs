@@ -8,15 +8,19 @@ import {
   CardContent,
   CardHeader,
   Dialog,
+  DialogContent,
+  DialogTitle,
   Divider,
   IconButton,
   List,
   ListItem,
   ListItemText,
+  Paper,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
 
 const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine, onClose: () => void}) => {
@@ -65,37 +69,55 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      className="height-full"
       fullScreen={isMobile}
     >
-      <Card>
-        <CardHeader
-          title={wine?.vineyard}
-          subheader={
-            <>
-              <div>
-                {`${wine?.label} - ${wine?.varietal} (${wine?.vintage})`}
-              </div>
-              <Typography variant="caption" color="text.secondary">
-                {wine?.notes || 'No description available.'}
-              </Typography>
-              <Divider />
-            </>
-          }
-          action={
-            <Avatar onClick={onClose} sx={{ cursor: 'pointer' }}>
-              X
-            </Avatar>
-          }
-        />
-        <CardContent>
-          {error && (
-            <Alert severity="error">
-              {error}
-            </Alert>
-          )}
-          <List>
-            {bottles.map((bottle) => (
+      <DialogTitle
+        sx={{
+          backgroundColor: 'primary.main',
+          color: 'primary.contrastText',
+        }}
+      >
+        <div>
+          {wine?.vineyard}
+        </div>
+        <div className="text-sm">
+          {`${wine?.label} - ${wine?.varietal} (${wine?.vintage})`}
+        </div>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{ 
+            position: 'absolute', 
+            right: 8, 
+            top: 8, 
+            color: 'inherit'
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <Divider />
+      <DialogContent
+        sx={{
+          backgroundColor: 'background.default',
+        }}
+      >
+        {error && (
+          <Alert severity="error">
+            {error}
+          </Alert>
+        )}
+        <List>
+          {bottles.map((bottle) => (
+            <Paper 
+              key={bottle.id}
+              elevation={1}
+              sx={{
+                mb: 2,
+                overflow: 'hidden',
+                borderRadius: 1
+              }}
+            >
               <ListItem 
                 key={bottle.id}
                 secondaryAction={
@@ -116,10 +138,10 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
                   secondary={`Row: ${bottle.binY} - Column: ${bottle.binX} - Depth: ${bottle.depth}`}
                 />
               </ListItem>
-            ))}
-          </List>
-        </CardContent>
-      </Card>
+            </Paper>
+          ))}
+        </List>
+      </DialogContent>
     </Dialog>
   )
 }
