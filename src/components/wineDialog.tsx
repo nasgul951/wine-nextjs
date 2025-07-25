@@ -131,7 +131,7 @@ const WineDetailDialog = ({isOpen, wine, onClose}: {isOpen: boolean, wine?: Wine
                     <div className="flex justify-between">
                       <div>{bottle.storageDescription || 'No storage description'}</div>
                       <div className="text-xs">
-                        Added: {`${bottle.createdDate.getDate() + 1}/${bottle.createdDate.getFullYear()} `}
+                        Added: {`${bottle.createdDate.getMonth() + 1}/${bottle.createdDate.getFullYear()} `}
                       </div>
                     </div>
                   )}
