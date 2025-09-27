@@ -1,4 +1,4 @@
-import { IGenericResponse, IPagedResponse, Varietal } from "../types";
+import { IGenericResponse, IPagedResponse, INameCount } from "../types";
 import { Bottle, Wine, NewBottleRequest, PatchBottleRequest, GetWinesOptions, PatchWineRequest, NewWineRequest, IStoreLocation, IStoreBottle } from "../types/wine";
 
 export class WineService {
@@ -9,7 +9,7 @@ export class WineService {
     this._apiToken = apiToken;
   }
 
-  public async getVarietals(): Promise<IGenericResponse<Varietal[]>> {
+  public async getVarietals(): Promise<IGenericResponse<INameCount[]>> {
     const response = await fetch(`${this._baseApiUrl}/varietals`, {
       headers: {
         'Authorization': `Bearer ${this._apiToken}`
@@ -18,13 +18,31 @@ export class WineService {
     });
 
     if (response.ok) {
-      const data: Varietal[] = await response.json();
+      const data: INameCount[] = await response.json();
       return { success: true, data: await data, status: response.status };
     }
 
     return { success: false, status: response.status, errors: [response.statusText] };
   }
 
+  public async getVineyards(like?: string): Promise<IGenericResponse<INameCount[]>> {
+    const baseUrl = `${this._baseApiUrl}/vineyards`;
+    const url = like ? `${baseUrl}?like=${encodeURIComponent(like)}` : baseUrl;
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${this._apiToken}`
+      },
+      method: 'GET',
+    });
+
+    if (response.ok) {
+      const data: INameCount[] = await response.json();
+      return { success: true, data: await data, status: response.status };
+    }
+
+    return { success: false, status: response.status, errors: [response.statusText] };
+  }
+  
   public async getWineById(wineId: number): Promise<IGenericResponse<Wine>> {
     const response = await fetch(`${this._baseApiUrl}/${wineId}`, {
       headers: {

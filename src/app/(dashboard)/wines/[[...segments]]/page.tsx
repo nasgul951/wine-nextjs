@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 import { DataGrid, GridSortModel } from '@mui/x-data-grid';
-import { Wine, WineFilter, GetWinesOptions } from '../../../../types/wine';
-import { useWineService } from '../../../../hooks/service';
+import { Wine, WineFilter, GetWinesOptions } from '@/types/wine';
+import { useWineService } from '@/hooks/service';
 import { 
   Button, 
   Card, 
@@ -19,8 +19,8 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import WineDetail from './components/wineDetail';
 import FilterDrawer from './components/filterDrawer';
 import { useRouter, notFound } from 'next/navigation';
-import AlertBox from '../../../../components/alertBox';
-import GridSkeletonLoader from '../../../../components/gridSkeletonLoader';
+import AlertBox from '@components/alertBox';
+import GridSkeletonLoader from '@components/gridSkeletonLoader';
 
 const WineGrid = () => {
   const [error, setError] = React.useState<string | null>(null);
@@ -31,8 +31,6 @@ const WineGrid = () => {
   const [paginationModel, setPaginationModel] = React.useState({ page: 0, pageSize: 10 });
   const [sortModel, setSortModel] = React.useState<GridSortModel>([]);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [vineyards, setVineyards] = React.useState<string[]>([]);
-  const [varietals, setVarietals] = React.useState<string[]>([]);
   const wineService = useWineService();
   const router = useRouter();
   const { mode } = useColorScheme();
@@ -66,21 +64,9 @@ const WineGrid = () => {
       }
       setLoading(false);
     };
+
     fetchWines();
   }, [wineService, paginationModel, sortModel, filter]);
-
-  // Fetch unique vineyards and varietals for filters
-  React.useEffect(() => {
-    if (wines.length > 0) {
-      // Extract unique vineyards
-      const uniqueVineyards = [...new Set(wines.map(wine => wine.vineyard))].sort();
-      setVineyards(uniqueVineyards);
-      
-      // Extract unique varietals
-      const uniqueVarietals = [...new Set(wines.map(wine => wine.varietal))].sort();
-      setVarietals(uniqueVarietals);
-    }
-  }, [wines]);
 
 
   const handleFilterChange = (
@@ -140,8 +126,6 @@ const WineGrid = () => {
         open={drawerOpen}
         onClose={() => toggleDrawer(false)}
         filter={filter}
-        vineyards={vineyards}
-        varietals={varietals}
         onFilterChange={handleFilterChange}
         onResetFilters={resetFilters}
       />

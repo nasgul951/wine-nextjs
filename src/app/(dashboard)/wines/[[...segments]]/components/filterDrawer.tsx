@@ -1,22 +1,17 @@
 import * as React from 'react';
+import VineyardSelect from '@components/vineyardSelect';
+import VarietalSelect from '@/components/varietalSelect';
 import { 
   Button, 
   Drawer, 
-  FormControl, 
-  InputLabel, 
-  MenuItem, 
-  Select, 
-  SelectChangeEvent, 
   Typography 
 } from '@mui/material';
-import { WineFilter } from '../../../../../types/wine';
+import { WineFilter } from '@/types/wine';
 
 interface FilterDrawerProps {
   open: boolean;
   onClose: () => void;
   filter: WineFilter | undefined;
-  vineyards: string[];
-  varietals: string[];
   onFilterChange: (name: keyof WineFilter, value: WineFilter[keyof WineFilter]) => void;
   onResetFilters: () => void;
 }
@@ -25,20 +20,9 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
   open,
   onClose,
   filter,
-  vineyards,
-  varietals,
   onFilterChange,
   onResetFilters
 }) => {
-  const handleVineyardChange = (event: SelectChangeEvent) => {
-    const value = event.target.value;
-    onFilterChange('vineyard', value === 'All' ? undefined : value);
-  };
-
-  const handleVarietalChange = (event: SelectChangeEvent) => {
-    const value = event.target.value;
-    onFilterChange('varietal', value === 'All' ? undefined : value);
-  };
 
   return (
     <Drawer
@@ -50,39 +34,17 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
         <Typography variant="h6" component="div" gutterBottom>
           Filter Wines
         </Typography>
+
+        <VineyardSelect
+          value={filter?.vineyard}
+          onSelectChange={(value?: string) => onFilterChange('vineyard', value)}
+        />
         
-        <FormControl fullWidth margin="normal">
-          <InputLabel id="vineyard-select-label">Vineyard</InputLabel>
-          <Select
-            labelId="vineyard-select-label"
-            id="vineyard-select"
-            value={filter?.vineyard || 'All'}
-            label="Vineyard"
-            onChange={handleVineyardChange}
-          >
-            <MenuItem value="All">All Vineyards</MenuItem>
-            {vineyards.map((vineyard) => (
-              <MenuItem key={vineyard} value={vineyard}>{vineyard}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        
-        <FormControl fullWidth margin="normal">
-          <InputLabel id="varietal-select-label">Varietal</InputLabel>
-          <Select
-            labelId="varietal-select-label"
-            id="varietal-select"
-            value={filter?.varietal || 'All'}
-            label="Varietal"
-            onChange={handleVarietalChange}
-          >
-            <MenuItem value="All">All Varietals</MenuItem>
-            {varietals.map((varietal) => (
-              <MenuItem key={varietal} value={varietal}>{varietal}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        
+        <VarietalSelect
+          value={filter?.varietal}
+          onSelectChange={(value?: string) => onFilterChange('varietal', value)}
+        />
+
         <Button 
           variant="contained" 
           color="primary" 
