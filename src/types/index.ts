@@ -40,7 +40,7 @@ export interface ISortModel {
   sort: 'asc' | 'desc';
 }
 
-export type Varietal = {
+export interface INameCount {
   name: string;
   count: number;
 }

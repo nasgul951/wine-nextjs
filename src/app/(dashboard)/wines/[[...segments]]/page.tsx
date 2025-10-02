@@ -3,13 +3,24 @@
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 import { DataGrid, GridSortModel } from '@mui/x-data-grid';
-import { Wine, WineFilter, GetWinesOptions } from '../../../../types/wine';
-import { useWineService } from '../../../../hooks/service';
-import { Button, Card, CardActions, CardContent, FormControlLabel, Switch, useColorScheme } from '@mui/material';
+import { Wine, WineFilter, GetWinesOptions } from '@/types/wine';
+import { useWineService } from '@/hooks/service';
+import { 
+  Button, 
+  Card, 
+  CardActions, 
+  CardContent, 
+  FormControlLabel, 
+  Switch, 
+  useColorScheme 
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import WineDetail from './components/wineDetail';
+import FilterDrawer from './components/filterDrawer';
 import { useRouter, notFound } from 'next/navigation';
-import AlertBox from '../../../../components/alertBox';
-import GridSkeletonLoader from '../../../../components/gridSkeletonLoader';
+import AlertBox from '@components/alertBox';
+import GridSkeletonLoader from '@components/gridSkeletonLoader';
 
 const WineGrid = () => {
   const [error, setError] = React.useState<string | null>(null);
@@ -19,6 +30,7 @@ const WineGrid = () => {
   const [rowCount, setRowCount] = React.useState(0);
   const [paginationModel, setPaginationModel] = React.useState({ page: 0, pageSize: 10 });
   const [sortModel, setSortModel] = React.useState<GridSortModel>([]);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
   const wineService = useWineService();
   const router = useRouter();
   const { mode } = useColorScheme();
@@ -52,6 +64,7 @@ const WineGrid = () => {
       }
       setLoading(false);
     };
+
     fetchWines();
   }, [wineService, paginationModel, sortModel, filter]);
 
@@ -64,7 +77,15 @@ const WineGrid = () => {
       ...prevFilter,
       [name]: value,
     }));
-  }
+  };
+
+  const toggleDrawer = (open: boolean) => {
+    setDrawerOpen(open);
+  };
+
+  const resetFilters = () => {
+    setFilter({});
+  };
 
   if (!mode)
   {
@@ -80,14 +101,35 @@ const WineGrid = () => {
       <AlertBox type="error" message={error} onClear={() => setError(null)} />
 
       <CardContent>
-        <FormControlLabel control={
-          <Switch 
-            checked={filter?.showAll ?? false} 
-            onChange={(e) => handleFilterChange('showAll', e.target.checked)} 
-          />} 
-        label="Show All" 
-        />
+        <div className="flex justify-between items-center mb-4">
+          <FormControlLabel 
+            control={
+              <Switch 
+                checked={filter?.showAll ?? false} 
+                onChange={(e) => handleFilterChange('showAll', e.target.checked)} 
+              />
+            } 
+            label="Show All" 
+          />
+          <Button 
+            variant="outlined" 
+            startIcon={<FilterListIcon />} 
+            onClick={() => toggleDrawer(true)}
+          >
+            Filters
+          </Button>
+        </div>
       </CardContent>
+
+      {/* Filter Drawer */}
+      <FilterDrawer
+        open={drawerOpen}
+        onClose={() => toggleDrawer(false)}
+        filter={filter}
+        onFilterChange={handleFilterChange}
+        onResetFilters={resetFilters}
+      />
+
       <DataGrid 
         columns={[
           { field: 'id', headerName: 'ID', width: 80 },
@@ -136,9 +178,10 @@ export default function WinesPage() {
                 size="small" 
                 variant="contained" 
                 color="primary"
+                startIcon={<AddIcon />}
                 onClick={() => { router.push('/wines/new'); }}
               >
-                Add New Wine
+                Add Wine
               </Button>
             </CardActions>
             <CardContent>

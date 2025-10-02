@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useWineService } from '../../../hooks/service'
-import type { Varietal } from '../../../types';
+import type { INameCount } from '../../../types';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Item from '@mui/material/ListItem';
@@ -12,7 +12,7 @@ import CardActionArea from '@mui/material/CardActionArea';
 import Link from '@mui/material/Link';
 import AlertBox from '../../../components/alertBox';
 
-const VarietalList = ({ varietals }: { varietals: Varietal[] }) => {
+const VarietalList = ({ varietals }: { varietals: INameCount[] }) => {
   const router = useRouter();
   const gotoVarietal = (varietalName: string) => {
     router.push(`/varietals/${varietalName}`);
@@ -44,7 +44,7 @@ const VarietalList = ({ varietals }: { varietals: Varietal[] }) => {
 }
 
 export default function VarietalPage() {
-  const [varietals, setVarietals] = React.useState<Varietal[]>([]);
+  const [varietals, setVarietals] = React.useState<INameCount[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const wineService = useWineService();
 
