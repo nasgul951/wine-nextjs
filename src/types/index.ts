@@ -11,6 +11,7 @@ export interface IAuthContext {
 export interface ISessionInfo {
   userId: number;
   userName: string;
+  isAdmin: boolean;
 }
 
 export interface IAppState {
@@ -33,6 +34,13 @@ export interface IGenericResponse<T> {
 export interface IPagedResponse<T> {
   items: T[];
   totalCount: number;
+}
+
+export interface IPagedRequest<T> {
+  filter?: T;
+  page: number;
+  pageSize: number;
+  sortModel?: ISortModel;
 }
 
 export interface ISortModel {

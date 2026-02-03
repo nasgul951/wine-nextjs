@@ -11,4 +11,5 @@ export interface AuthResponse {
 export interface UserInfoResponse {
   userId: number;
   userName: string;
+  isAdmin: boolean;
 }

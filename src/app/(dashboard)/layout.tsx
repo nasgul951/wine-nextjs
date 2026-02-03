@@ -4,8 +4,14 @@ import { usePathname, useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
 import { useActivePage } from '@toolpad/core/useActivePage';
-import invariant from 'tiny-invariant';
 import { useAuth } from '../../context/authContext';
+
+const segmentLabels: Record<string, string> = {
+  wines: 'Wine',
+  users: 'User',
+  varietals: 'Varietal',
+  store: 'Storage'
+};
 
 export default function DashboardPagesLayout(props: { children: React.ReactNode }) {
   const router = useRouter();
@@ -13,32 +19,34 @@ export default function DashboardPagesLayout(props: { children: React.ReactNode 
   const pathname = usePathname();
   const params = useParams();
   const activePage = useActivePage();
-  invariant(activePage, 'Active page must be defined in DashboardPagesLayout');
 
-  const [wineId] = params.segments ?? [];
+  const [entityId] = params.segments ?? [];
+  const baseSegment = pathname.split('/')[1] ?? '';
+  const label = segmentLabels[baseSegment] ?? baseSegment;
 
   const title = React.useMemo(() => {
-    if (pathname === '/wines/new') {
-      return 'New Wine';
+    if (entityId === 'new') {
+      return `New ${label}`;
     }
-    if (wineId && pathname.includes('/edit')) {
-      return `Wine ${wineId} - Edit`;
+    if (entityId && pathname.endsWith('/edit')) {
+      return `${label} ${entityId} - Edit`;
     }
-    if (wineId) {
-      return `Wine ${wineId}`;
+    if (entityId) {
+      return `${label} ${entityId}`;
     }
+    // undefined will fall back to the title defined in the navigation array (appProvider.tsx)
     return undefined;
-  }, [wineId, pathname]);
+  }, [entityId, pathname, label]);
 
-  const path = `${activePage.path}/${wineId ? wineId : ''}`;
+  const path = activePage ? `${activePage.path}/${entityId ? entityId : ''}` : '';
 
   const breadcrumbs = React.useMemo(() => {
-    if (!title) {
+    if (!title || !activePage) {
       return undefined;
     }
 
     return [...activePage.breadcrumbs, {title, path}];
-  }, [activePage.breadcrumbs, title, path]);
+  }, [activePage, title, path]);
 
   // If the user is not authenticated, redirect to the login page
   React.useEffect(() => {
@@ -47,8 +55,8 @@ export default function DashboardPagesLayout(props: { children: React.ReactNode 
     }
   }, [user, router]);
 
-  if (!user) {
-    // If the user is not authenticated, we don't render the layout
+  if (!user || !activePage) {
+    // Don't render until user is authenticated and navigation is ready
     return null;
   }
   
