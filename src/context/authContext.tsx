@@ -54,7 +54,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (response.success) {
       const user: ISessionInfo = {
         userId: response.data!.userId,
-        userName: response.data!.userName
+        userName: response.data!.userName,
+        isAdmin: response.data!.isAdmin
       };
       dispatch({ type: "SET_USER", payload: user });
       return user;
